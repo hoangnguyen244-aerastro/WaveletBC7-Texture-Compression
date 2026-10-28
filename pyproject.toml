@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "wavelet-bc7"
+version = "0.3.0"
+description = "Wavelet preprocessing experiments for fixed-rate BC7 textures"
+requires-python = ">=3.11"
+dependencies = [
+    "numpy>=1.26,<3",
+    "Pillow>=10,<12",
+    "PyWavelets>=1.5,<2",
+    "scikit-image>=0.22,<1",
+    "scipy>=1.11,<2",
+    "pandas>=2,<3",
+    "matplotlib>=3.8,<4",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8,<10"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests", "test"]
+pythonpath = ["src"]

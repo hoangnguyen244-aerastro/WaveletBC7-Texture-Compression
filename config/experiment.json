@@ -1,0 +1,10 @@
+{
+  "dataset": "resources/textures/train/albedo",
+  "wavelet": "haar",
+  "modes": ["identity", "fixed", "adaptive"],
+  "strengths": [1, 2, 4, 8],
+  "backend": "cpu",
+  "texconv": "tools/texconv.exe",
+  "format": "BC7_UNORM_SRGB",
+  "mip_levels": 1
+}
