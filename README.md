@@ -31,6 +31,13 @@ Runs three pre-existing albedo textures, three methods, CPU BC7 encoding, then w
 
 The run refuses to overwrite an existing nonempty output directory. To repeat a run, change `output_directory` in a copied config. No results are fabricated or committed.
 
+## Generate thesis tables and plots
+After a successful experiment:
+```bash
+python -m scripts.generate_report results/experiments/pilot_001
+```
+Creates `report.md` and PNG/SVG paired-comparison charts in `figures/`. These are computed from real `paired_summary.csv` values; no example numbers are substituted.
+
 ## Tests
 ```bash
 python -m pytest tests/test_research.py
