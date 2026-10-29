@@ -11,7 +11,17 @@ Research goal: **test whether fixed/adaptive Wavelet preprocessing improves deco
 - `scripts/run_research.py`: CLI runner.
 - `docs/experiment_protocol.md`: methods and limitations.
 
-## Installation (Python 3.10+)
+## Recommended Windows installation (Python 3.11 x64)
+
+After cloning, run from PowerShell in the project root:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\setup_windows.ps1
+```
+
+This creates the project-local `.venv`, installs all dependencies including PySide6 and pytest, validates the environment, and runs tests. Read [Windows installation guide](docs/windows_setup.md). Virtual environments are not copied between computers; rerun setup after cloning.
+
+## Manual installation (Python 3.11+)
 ```bash
 python -m pip install -r requirements.txt
 python -m pip install pytest
