@@ -1,0 +1,4 @@
+image_id,path,split,material_group,license,source
+brick_albedo,../resources/textures/train/albedo/Brick_01_alb.png,pilot,brick,verify-before-publication,existing-repository
+metal_albedo,../resources/textures/train/albedo/Metal_01_alb.png,pilot,metal,verify-before-publication,existing-repository
+wood_albedo,../resources/textures/train/albedo/Wood_01_alb.png,pilot,wood,verify-before-publication,existing-repository
