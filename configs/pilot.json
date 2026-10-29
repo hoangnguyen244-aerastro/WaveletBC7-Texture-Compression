@@ -1,0 +1,24 @@
+{
+  "dataset_manifest": "datasets/manifest.csv",
+  "output_directory": "results/experiments/pilot_001",
+  "texconv_executable": "tools/texconv.exe",
+  "backend": "cpu",
+  "split": "pilot",
+  "methods": [
+    {
+      "name": "baseline",
+      "mode": "identity",
+      "strength": 0
+    },
+    {
+      "name": "fixed_4",
+      "mode": "fixed",
+      "strength": 4
+    },
+    {
+      "name": "adaptive_4",
+      "mode": "adaptive",
+      "strength": 4
+    }
+  ]
+}
