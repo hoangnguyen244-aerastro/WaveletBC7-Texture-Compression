@@ -15,6 +15,7 @@ from PySide6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout,
 from src.wavelet_bc7.research import Configuration, Method, run
 from src.wavelet_bc7.analysis import analyze
 from scripts.generate_report import generate
+from scripts.plot_sweep import plot
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -29,6 +30,7 @@ class Worker(QObject):
             result = run(self.cfg)
             analyze(result)
             generate(result.parent)
+            plot(result)
             self.finished.emit(str(result.parent))
         except Exception:
             self.failed.emit(traceback.format_exc())
@@ -166,6 +168,7 @@ class Studio(QMainWindow):
             return
         try:
             generate(root)
+            plot(root / 'raw_results.csv')
             QMessageBox.information(self,"Report","Saved report.md and figures/ under "+str(root))
         except Exception as exc:
             QMessageBox.critical(self,"Report failed",str(exc))
