@@ -58,3 +58,7 @@ The pilot data are for functional testing only, not for a defensible thesis conc
 
 ## Future work
 Statistical significance on a locked test set, cluster bootstrap by material, repeated timing runs, chart/report generator, normal/roughness-specific metrics, API layer. This branch is the first working research foundation, not a finished thesis with validated empirical results.
+
+## V1 strength sweep (Windows 11)
+
+The 13-arm pilot sweep (BC7 baseline, six fixed strengths and six adaptive strengths) is configured in `configs/sweep_v1.json`. See [the Windows 11 sweep guide](docs/sweep_v1_windows11.md) for the exact commands, measured CSV exports, plots, limitations and rerun procedure. The repository does not include invented benchmark measurements.
