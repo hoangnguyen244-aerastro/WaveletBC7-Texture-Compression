@@ -1,0 +1,74 @@
+{
+  "dataset_manifest": "datasets/manifest.csv",
+  "output_directory": "results/experiments/sweep_v1_001",
+  "texconv_executable": "tools/texconv.exe",
+  "backend": "cpu",
+  "split": "pilot",
+  "methods": [
+    {
+      "name": "baseline",
+      "mode": "identity",
+      "strength": 0
+    },
+    {
+      "name": "fixed_0p25",
+      "mode": "fixed",
+      "strength": 0.25
+    },
+    {
+      "name": "fixed_0p5",
+      "mode": "fixed",
+      "strength": 0.5
+    },
+    {
+      "name": "fixed_1",
+      "mode": "fixed",
+      "strength": 1
+    },
+    {
+      "name": "fixed_2",
+      "mode": "fixed",
+      "strength": 2
+    },
+    {
+      "name": "fixed_4",
+      "mode": "fixed",
+      "strength": 4
+    },
+    {
+      "name": "fixed_8",
+      "mode": "fixed",
+      "strength": 8
+    },
+    {
+      "name": "adaptive_0p25",
+      "mode": "adaptive",
+      "strength": 0.25
+    },
+    {
+      "name": "adaptive_0p5",
+      "mode": "adaptive",
+      "strength": 0.5
+    },
+    {
+      "name": "adaptive_1",
+      "mode": "adaptive",
+      "strength": 1
+    },
+    {
+      "name": "adaptive_2",
+      "mode": "adaptive",
+      "strength": 2
+    },
+    {
+      "name": "adaptive_4",
+      "mode": "adaptive",
+      "strength": 4
+    },
+    {
+      "name": "adaptive_8",
+      "mode": "adaptive",
+      "strength": 8
+    }
+  ]
+}
