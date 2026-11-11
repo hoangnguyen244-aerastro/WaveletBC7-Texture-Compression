@@ -62,3 +62,13 @@ Statistical significance on a locked test set, cluster bootstrap by material, re
 ## V1 strength sweep (Windows 11)
 
 The 13-arm pilot sweep (BC7 baseline, six fixed strengths and six adaptive strengths) is configured in `configs/sweep_v1.json`. See [the Windows 11 sweep guide](docs/sweep_v1_windows11.md) for the exact commands, measured CSV exports, plots, limitations and rerun procedure. The repository does not include invented benchmark measurements.
+
+## BC7 baseline error diagnostics
+
+After running the V1 sweep, inspect pixel-error heatmaps, 4×4 BC7 block errors, edge/nonedge errors and Haar residual subbands:
+
+```powershell
+.\.venv\Scripts\python.exe -m scripts.analyze_bc7_errors results/experiments/sweep_v1_001
+```
+
+See [BC7 Error Analysis guide](docs/bc7_error_analysis.md). Results are measured from the original image and the baseline decoded PNG, never invented or assumed to show improvements.
