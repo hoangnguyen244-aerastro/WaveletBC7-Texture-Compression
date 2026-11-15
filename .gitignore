@@ -10,3 +10,19 @@ outputs/
 
 # Generated dataset inventories and reports
 datasets/integration/
+
+# Local logs, temporary exports and editor/OS artifacts
+*.log
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+Thumbs.db
+Desktop.ini
+.vscode/*.log
+.coverage
+htmlcov/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
