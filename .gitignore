@@ -7,3 +7,6 @@ results/
 outputs/
 *.egg-info/
 .DS_Store
+
+# Generated dataset inventories and reports
+datasets/integration/
