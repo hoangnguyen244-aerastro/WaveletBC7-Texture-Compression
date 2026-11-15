@@ -48,3 +48,11 @@ To use the new manifest in a future experiment, copy a JSON config, change `data
 - This stage does not perform BC7 encoding or claim any Wavelet V2 quality improvements.
 
 Keep `datasets/integration/` local unless you deliberately decide to publish reports; it is gitignored. Review provenance and any manifest before committing dataset metadata.
+
+## Repository cleanup audit (2026-11-15)
+
+- The research branch contains 120 numbered albedo PNG files (20 each of brick, fabric, metal, organic, stone, wood), three original pilot albedo PNGs, additional source originals, normal/roughness pilot textures and a project-local texconv executable.
+- The previous three-row pilot manifest referred to removed `resources/textures/train/albedo/*_alb.png` names. It now points to the existing originals at `resources/textures/originals/*_alb.png`. Do not overwrite the historical experiment outputs: they retain their own recorded configuration and hashes.
+- No tracked `__pycache__`, `.pyc`, experiment `results/`, `.venv`, temporary log, backup or coverage artifacts were found in the repository tree. `.gitignore` was expanded to prevent future accidental additions.
+- No PNG, original texture, normal/roughness map, executable, script, old branch, PR or Git history was deleted: such deletion could break reproducibility. A Git blob inventory cannot prove that two differently encoded images are visually identical; the local validator remains necessary.
+- **Check before rerunning pilot**: original file hashes must match the prior `raw_results.csv` `source_sha256` values if you need exact reproduction. GitHub path repair alone cannot certify this.
