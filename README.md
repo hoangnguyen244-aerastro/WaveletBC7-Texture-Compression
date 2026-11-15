@@ -72,3 +72,13 @@ After running the V1 sweep, inspect pixel-error heatmaps, 4×4 BC7 block errors,
 ```
 
 See [BC7 Error Analysis guide](docs/bc7_error_analysis.md). Results are measured from the original image and the baseline decoded PNG, never invented or assumed to show improvements.
+
+## Dataset integration (120 albedo textures)
+
+Validate the uploaded textures and export an inventory without changing the three-image pilot manifest:
+
+```powershell
+.\.venv\Scripts\python.exe -m scripts.validate_dataset --root resources/textures/train/albedo
+```
+
+See [dataset integration guide](docs/dataset_integration.md). Independent train/validation/test splits require verified per-image provenance in `datasets/provenance.csv`; no split is invented automatically.
