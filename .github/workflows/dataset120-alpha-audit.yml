@@ -1,0 +1,32 @@
+name: Dataset120 pixel-level Alpha audit
+on:
+  push:
+    branches: [experiment/dataset120-v2-exploratory]
+    paths:
+      - scripts/audit_alpha.py
+      - .github/workflows/dataset120-alpha-audit.yml
+      - resources/textures/train/albedo/**
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  alpha-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install Pillow
+        run: python -m pip install 'Pillow>=10,<12'
+      - name: Inspect every pixel's Alpha and image dimensions
+        run: python -m scripts.audit_alpha
+      - name: Upload complete per-image audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: dataset120-alpha-audit
+          path: results/audits/dataset120_alpha/
+          retention-days: 30
