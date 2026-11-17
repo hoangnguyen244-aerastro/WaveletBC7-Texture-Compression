@@ -19,6 +19,7 @@ from skimage.metrics import structural_similarity
 from src.wavelet import wavelet_preprocess
 from src.wavelet_bc7.codec import Texconv
 from src.metrics import measure
+from src.wavelet_bc7.rgb_policy import extract_rgb
 
 @dataclass(frozen=True)
 class Method:
@@ -115,7 +116,7 @@ def run(config: Configuration) -> Path:
         if not image_path.is_file():
             raise FileNotFoundError(image_path)
         with Image.open(image_path) as image:
-            rgb = np.asarray(image.convert("RGB"), dtype=np.uint8)
+            rgb = extract_rgb(image)
         image_hash = sha256(image_path)
         for method in config.methods:
             stem = f"{entry['image_id']}_{method.name}"
