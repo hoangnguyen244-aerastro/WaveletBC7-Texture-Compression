@@ -1,0 +1,87 @@
+name: Reproducible BC7 pilot evidence (Windows)
+
+on:
+  push:
+    branches:
+      - experiment/automated-pilot-evidence-2026
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  pilot:
+    runs-on: windows-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          architecture: x64
+          cache: pip
+      - name: Install dependencies
+        shell: pwsh
+        run: |
+          python -m pip install -r requirements.txt -r requirements-dev.txt
+          python -m pip freeze | Out-File -FilePath pip-freeze.txt -Encoding utf8
+      - name: Unit tests
+        shell: pwsh
+        run: python -m pytest tests/ -q
+      - name: Verify executable and source images
+        shell: pwsh
+        run: |
+          if (!(Test-Path tools/texconv.exe)) { throw "Missing tools/texconv.exe" }
+          if (!(Test-Path datasets/manifest.csv)) { throw "Missing pilot manifest" }
+          Get-FileHash tools/texconv.exe -Algorithm SHA256 | Format-List
+      - name: Inventory 120 albedo textures (provenance warnings expected)
+        shell: pwsh
+        run: python -m scripts.validate_dataset --root resources/textures/train/albedo
+      - name: Pilot baseline/fixed/adaptive (3 images x 3 methods)
+        shell: pwsh
+        run: python -m scripts.run_research --config configs/pilot.json
+      - name: Pilot figures and comparison report
+        shell: pwsh
+        run: python -m scripts.generate_report results/experiments/pilot_001
+      - name: V1 sweep (3 images x 13 methods)
+        shell: pwsh
+        run: python -m scripts.run_research --config configs/sweep_v1.json
+      - name: V1 sweep statistics and plots
+        shell: pwsh
+        run: python -m scripts.analyze_sweep results/experiments/sweep_v1_001
+      - name: Baseline BC7 error diagnostics
+        shell: pwsh
+        run: python -m scripts.analyze_bc7_errors results/experiments/sweep_v1_001
+      - name: Package numeric evidence only (avoid redistribution of image artifacts)
+        if: always()
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path evidence | Out-Null
+          Copy-Item pip-freeze.txt evidence/ -ErrorAction SilentlyContinue
+          Copy-Item datasets/integration/inventory.csv evidence/dataset_inventory.csv -ErrorAction SilentlyContinue
+          Copy-Item datasets/integration/validation_report.json evidence/dataset_validation_report.json -ErrorAction SilentlyContinue
+          foreach ($run in @('pilot_001','sweep_v1_001')) {
+            $source = "results/experiments/$run"
+            if (Test-Path $source) {
+              $dest = "evidence/$run"
+              New-Item -ItemType Directory -Force -Path $dest | Out-Null
+              foreach ($name in @('raw_results.csv','paired_summary.csv','sweep_summary.csv','sweep_report.md','report.md','config.json','environment.json')) {
+                Copy-Item "$source/$name" "$dest/" -ErrorAction SilentlyContinue
+              }
+              if (Test-Path "$source/figures") {
+                Copy-Item "$source/figures" "$dest/figures" -Recurse -ErrorAction SilentlyContinue
+              }
+              if (Test-Path "$source/bc7_error_analysis/error_summary.csv") {
+                New-Item -ItemType Directory -Force -Path "$dest/bc7_error_analysis" | Out-Null
+                Copy-Item "$source/bc7_error_analysis/error_summary.csv" "$dest/bc7_error_analysis/"
+                Copy-Item "$source/bc7_error_analysis/error_report.md" "$dest/bc7_error_analysis/" -ErrorAction SilentlyContinue
+              }
+            }
+          }
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: wavelet-bc7-measured-pilot-evidence
+          path: evidence/
+          retention-days: 30
+          if-no-files-found: warn
