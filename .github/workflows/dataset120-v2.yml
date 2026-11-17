@@ -42,7 +42,7 @@ jobs:
           if-no-files-found: warn
 
   exploratory:
-    if: github.event_name == 'workflow_dispatch' && inputs.run_exploratory
+    if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.run_exploratory)
     needs: dataset-audit
     runs-on: windows-latest
     timeout-minutes: 360
