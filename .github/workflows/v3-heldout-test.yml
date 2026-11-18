@@ -1,0 +1,105 @@
+name: V3 select validation parameters and run held-out test
+on:
+  push:
+    branches: [experiment/v3-independent-split-validation]
+    paths: [.github/workflows/v3-heldout-test.yml]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  select:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    env:
+      GH_TOKEN: ${{ github.token }}
+      REPO: ${{ github.repository }}
+      VALIDATION_RUN: '44264613921'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Wait for all six validation jobs
+        shell: bash
+        run: |
+          set -euo pipefail
+          for i in $(seq 1 150); do
+            status=$(gh run view "$VALIDATION_RUN" --repo "$REPO" --json status --jq '.status')
+            if [ "$status" = completed ]; then
+              conclusion=$(gh run view "$VALIDATION_RUN" --repo "$REPO" --json conclusion --jq '.conclusion')
+              if [ "$conclusion" != success ]; then
+                echo "Validation run ended with $conclusion. Refusing to select or test."
+                exit 1
+              fi
+              exit 0
+            fi
+            echo "Waiting for validation ($status): check $i/150"
+            sleep 60
+          done
+          echo "Timed out waiting for validation"
+          exit 1
+      - name: Download six original validation artifacts
+        shell: bash
+        run: |
+          mkdir -p validation_artifacts
+          gh run download "$VALIDATION_RUN" --repo "$REPO" --dir validation_artifacts --pattern 'v3-validation-*'
+          find validation_artifacts -name raw_results.csv -print
+      - name: Lock parameters from validation only
+        run: python -m scripts.select_v3_parameters --artifacts validation_artifacts --output selected/selection.json
+      - name: Preserve exact split manifest from validation run
+        shell: bash
+        run: |
+          cp validation_artifacts/v3-validation-brick/manifest_v3.csv selected/manifest_v3.csv
+          cp validation_artifacts/v3-validation-brick/split_protocol.json selected/split_protocol.json
+          for material in fabric metal organic stone wood; do
+            cmp selected/manifest_v3.csv "validation_artifacts/v3-validation-$material/manifest_v3.csv"
+          done
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v3-locked-selection
+          path: selected/
+          retention-days: 60
+
+  test:
+    needs: select
+    strategy:
+      fail-fast: false
+      matrix:
+        material: [brick, fabric, metal, organic, stone, wood]
+    runs-on: windows-latest
+    timeout-minutes: 300
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: v3-locked-selection
+          path: selected
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -r requirements.txt -r requirements-dev.txt
+      - name: Prepare frozen held-out test
+        run: python -m scripts.prepare_v3_test --selection selected/selection.json --manifest selected/manifest_v3.csv --material ${{ matrix.material }}
+      - name: Run 4 held-out images x 3 locked methods
+        run: python -m scripts.run_research --config results/experiments/v3_test/test_${{ matrix.material }}.json
+      - name: Package per-material numeric results
+        if: always()
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force evidence | Out-Null
+          Copy-Item selected/selection.json evidence/ -ErrorAction SilentlyContinue
+          Copy-Item selected/manifest_v3.csv evidence/ -ErrorAction SilentlyContinue
+          $material = '${{ matrix.material }}'
+          foreach ($name in @('raw_results.csv','paired_summary.csv','config.json','environment.json')) {
+            Copy-Item "results/experiments/v3_test/test_results_$material/$name" evidence/ -ErrorAction SilentlyContinue
+          }
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: v3-heldout-test-${{ matrix.material }}
+          path: evidence/
+          retention-days: 60
+          if-no-files-found: warn
