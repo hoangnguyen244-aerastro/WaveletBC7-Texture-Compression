@@ -2,7 +2,7 @@ name: V3 select validation parameters and run held-out test
 on:
   push:
     branches: [experiment/v3-independent-split-validation]
-    paths: [.github/workflows/v3-heldout-test.yml]
+    paths: [.github/workflows/v3-heldout-test.yml, scripts/prepare_v3_test.py, scripts/select_v3_parameters.py]
   workflow_dispatch:
 
 permissions:
