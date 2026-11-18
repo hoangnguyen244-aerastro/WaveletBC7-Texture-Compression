@@ -22,7 +22,8 @@ def prepare(selection:Path,manifest:Path,output:Path,material:str):
         # Paths in original manifest are relative to manifest parent, not this new output directory.
         for r in selected:
             from os.path import relpath
-            src=(manifest.parent/r["path"]).resolve()
+            src=(Path.cwd()/"resources"/"textures"/"train"/"albedo"/(r["image_id"].split("_")[0].capitalize()+"_"+r["image_id"].split("_")[1]+".png")).resolve()
+            if not src.is_file(): raise FileNotFoundError(src)
             writer.writerow({**r,"path":relpath(src,output).replace("\\","/")})
     methods=[{"name":"baseline","mode":"identity","strength":0.0}]
     for mode in ("fixed","adaptive"):
