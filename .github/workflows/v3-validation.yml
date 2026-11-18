@@ -1,0 +1,51 @@
+name: V3 independent dataset validation sweep
+on:
+  push:
+    branches: [experiment/v3-independent-split-validation]
+    paths:
+      - scripts/prepare_v3_validation.py
+      - .github/workflows/v3-validation.yml
+      - src/**
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validation:
+    strategy:
+      fail-fast: false
+      matrix:
+        material: [brick, fabric, metal, organic, stone, wood]
+    runs-on: windows-latest
+    timeout-minutes: 350
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -r requirements.txt -r requirements-dev.txt
+      - name: Check source-independent RGB-only tests
+        run: python -m pytest tests/test_rgb_policy.py tests/test_research.py -q
+      - name: Freeze split and 9-arm validation config
+        run: python -m scripts.prepare_v3_validation --material ${{ matrix.material }}
+      - name: Run 4 validation images x 9 methods
+        run: python -m scripts.run_research --config results/experiments/v3/validation_${{ matrix.material }}.json
+      - name: Package numeric evidence
+        if: always()
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force evidence | Out-Null
+          Copy-Item results/experiments/v3/manifest_v3.csv evidence/ -ErrorAction SilentlyContinue
+          Copy-Item results/experiments/v3/split_protocol.json evidence/ -ErrorAction SilentlyContinue
+          $material = '${{ matrix.material }}'
+          foreach ($name in @('raw_results.csv','paired_summary.csv','config.json','environment.json')) {
+            Copy-Item "results/experiments/v3/validation_results_$material/$name" "evidence/" -ErrorAction SilentlyContinue
+          }
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: v3-validation-${{ matrix.material }}
+          path: evidence/
+          retention-days: 30
+          if-no-files-found: warn
